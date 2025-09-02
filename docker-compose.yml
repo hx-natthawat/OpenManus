@@ -1,0 +1,113 @@
+version: '3.8'
+
+services:
+  openmanus:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: openmanus-app
+    environment:
+      - PYTHONPATH=/app/OpenManus
+      - PYTHONUNBUFFERED=1
+      # LLM Configuration
+      - LLM_MODEL=${LLM_MODEL:-claude-3-7-sonnet-20250219}
+      - LLM_API_KEY=${LLM_API_KEY}
+      - LLM_BASE_URL=${LLM_BASE_URL:-https://api.anthropic.com/v1/}
+      - LLM_MAX_TOKENS=${LLM_MAX_TOKENS:-8192}
+      - LLM_TEMPERATURE=${LLM_TEMPERATURE:-0.0}
+      # Vision Model Configuration
+      - VISION_MODEL=${VISION_MODEL:-claude-3-7-sonnet-20250219}
+      - VISION_API_KEY=${VISION_API_KEY}
+      - VISION_BASE_URL=${VISION_BASE_URL:-https://api.anthropic.com/v1/}
+      # Browser Configuration
+      - BROWSER_HEADLESS=${BROWSER_HEADLESS:-true}
+      - BROWSER_DISABLE_SECURITY=${BROWSER_DISABLE_SECURITY:-true}
+      # Search Configuration
+      - SEARCH_ENGINE=${SEARCH_ENGINE:-Google}
+      - SEARCH_LANG=${SEARCH_LANG:-en}
+      - SEARCH_COUNTRY=${SEARCH_COUNTRY:-us}
+      # Sandbox Configuration
+      - SANDBOX_USE=${SANDBOX_USE:-false}
+      - SANDBOX_MEMORY_LIMIT=${SANDBOX_MEMORY_LIMIT:-1g}
+      - SANDBOX_CPU_LIMIT=${SANDBOX_CPU_LIMIT:-2.0}
+      - SANDBOX_TIMEOUT=${SANDBOX_TIMEOUT:-300}
+    volumes:
+      - ./config:/app/OpenManus/config
+      - ./data:/app/OpenManus/data
+      - ./logs:/app/OpenManus/logs
+      - /var/run/docker.sock:/var/run/docker.sock  # For sandbox functionality
+    ports:
+      - "${MCP_PORT:-8000}:8000"  # MCP server port
+    networks:
+      - openmanus-network
+    restart: unless-stopped
+    command: python run_mcp_server.py --transport stdio
+    stdin_open: true
+    tty: true
+    # Add security context for browser operations
+    security_opt:
+      - seccomp:unconfined
+    # Shared memory for browser
+    shm_size: 2gb
+    # Add capabilities for browser automation
+    cap_add:
+      - SYS_ADMIN
+
+  # Optional: Ollama service for local LLM
+  ollama:
+    image: ollama/ollama:latest
+    container_name: openmanus-ollama
+    ports:
+      - "${OLLAMA_PORT:-11434}:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    networks:
+      - openmanus-network
+    restart: unless-stopped
+    profiles:
+      - ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+
+  # Optional: Redis for caching and session management
+  redis:
+    image: redis:7-alpine
+    container_name: openmanus-redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - openmanus-network
+    restart: unless-stopped
+    profiles:
+      - cache
+    command: redis-server --appendonly yes
+
+  # Optional: PostgreSQL for data persistence
+  postgres:
+    image: postgres:15-alpine
+    container_name: openmanus-postgres
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-openmanus}
+      - POSTGRES_USER=${POSTGRES_USER:-openmanus}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-openmanus123}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./init-db:/docker-entrypoint-initdb.d
+    networks:
+      - openmanus-network
+    restart: unless-stopped
+    profiles:
+      - database
+
+networks:
+  openmanus-network:
+    driver: bridge
+
+volumes:
+  ollama-data:
+  redis-data:
+  postgres-data:

@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   openmanus:
     build:
@@ -9,28 +7,6 @@ services:
     environment:
       - PYTHONPATH=/app/OpenManus
       - PYTHONUNBUFFERED=1
-      # LLM Configuration
-      - LLM_MODEL=${LLM_MODEL:-claude-3-7-sonnet-20250219}
-      - LLM_API_KEY=${LLM_API_KEY}
-      - LLM_BASE_URL=${LLM_BASE_URL:-https://api.anthropic.com/v1/}
-      - LLM_MAX_TOKENS=${LLM_MAX_TOKENS:-8192}
-      - LLM_TEMPERATURE=${LLM_TEMPERATURE:-0.0}
-      # Vision Model Configuration
-      - VISION_MODEL=${VISION_MODEL:-claude-3-7-sonnet-20250219}
-      - VISION_API_KEY=${VISION_API_KEY}
-      - VISION_BASE_URL=${VISION_BASE_URL:-https://api.anthropic.com/v1/}
-      # Browser Configuration
-      - BROWSER_HEADLESS=${BROWSER_HEADLESS:-true}
-      - BROWSER_DISABLE_SECURITY=${BROWSER_DISABLE_SECURITY:-true}
-      # Search Configuration
-      - SEARCH_ENGINE=${SEARCH_ENGINE:-Google}
-      - SEARCH_LANG=${SEARCH_LANG:-en}
-      - SEARCH_COUNTRY=${SEARCH_COUNTRY:-us}
-      # Sandbox Configuration
-      - SANDBOX_USE=${SANDBOX_USE:-false}
-      - SANDBOX_MEMORY_LIMIT=${SANDBOX_MEMORY_LIMIT:-1g}
-      - SANDBOX_CPU_LIMIT=${SANDBOX_CPU_LIMIT:-2.0}
-      - SANDBOX_TIMEOUT=${SANDBOX_TIMEOUT:-300}
     volumes:
       - ./config:/app/OpenManus/config
       - ./data:/app/OpenManus/data

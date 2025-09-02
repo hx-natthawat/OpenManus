@@ -1,0 +1,93 @@
+# OpenManus Configuration File
+# Copy this file to config/config.toml and customize it for your setup
+
+# Global LLM configuration
+[llm]
+model = "claude-3-7-sonnet-latest"        # The LLM model to use
+base_url = "https://api.anthropic.com/v1/" # API endpoint URL
+api_key = "YOUR_API_KEY"                   # Your API key
+max_tokens = 8192                          # Maximum number of tokens in the response
+temperature = 0.0                          # Controls randomness
+
+# Alternative LLM providers (uncomment to use)
+# [llm] # OpenAI
+# model = "gpt-4o"
+# base_url = "https://api.openai.com/v1/"
+# api_key = "YOUR_OPENAI_API_KEY"
+# max_tokens = 8192
+# temperature = 0.0
+
+# [llm] # Azure OpenAI
+# api_type = "azure"
+# model = "YOUR_MODEL_NAME"
+# base_url = "https://YOUR_RESOURCE.openai.azure.com/openai/deployments/YOUR_DEPLOYMENT"
+# api_key = "YOUR_AZURE_API_KEY"
+# max_tokens = 8192
+# temperature = 0.0
+# api_version = "2024-08-01-preview"
+
+# [llm] # Ollama (local)
+# api_type = "ollama"
+# model = "llama3.2"
+# base_url = "http://ollama:11434/v1"
+# api_key = "ollama"
+# max_tokens = 4096
+# temperature = 0.0
+
+# Optional configuration for vision models
+[llm.vision]
+model = "claude-3-7-sonnet-latest"        # The vision model to use
+base_url = "https://api.anthropic.com/v1/" # API endpoint URL for vision model
+api_key = "YOUR_API_KEY"                   # Your API key for vision model
+max_tokens = 8192                          # Maximum number of tokens in the response
+temperature = 0.0                          # Controls randomness for vision model
+
+# [llm.vision] # Ollama Vision
+# api_type = "ollama"
+# model = "llama3.2-vision"
+# base_url = "http://ollama:11434/v1"
+# api_key = "ollama"
+# max_tokens = 4096
+# temperature = 0.0
+
+# Browser configuration
+[browser]
+headless = true                            # Whether to run browser in headless mode
+disable_security = true                    # Disable browser security features
+# extra_chromium_args = []                 # Extra arguments to pass to the browser
+# chrome_instance_path = ""                # Path to Chrome instance
+# wss_url = ""                            # WebSocket URL for browser connection
+# cdp_url = ""                            # CDP URL for browser connection
+
+# Optional proxy settings for the browser
+# [browser.proxy]
+# server = "http://proxy-server:port"
+# username = "proxy-username"
+# password = "proxy-password"
+
+# Search engine configuration
+[search]
+engine = "Google"                          # Primary search engine: "Google", "Baidu", "DuckDuckGo", "Bing"
+fallback_engines = ["DuckDuckGo", "Baidu", "Bing"] # Fallback engines in order
+retry_delay = 60                           # Seconds to wait before retrying all engines
+max_retries = 3                           # Maximum number of retry attempts
+lang = "en"                               # Language code for search results
+country = "us"                            # Country code for search results
+
+# Sandbox configuration
+[sandbox]
+use_sandbox = false                       # Enable/disable sandbox functionality
+image = "python:3.12-slim"               # Docker image for sandbox
+work_dir = "/workspace"                   # Working directory in sandbox
+memory_limit = "1g"                       # Memory limit for sandbox
+cpu_limit = 2.0                          # CPU limit for sandbox
+timeout = 300                            # Timeout in seconds
+network_enabled = true                   # Enable network access in sandbox
+
+# MCP (Model Context Protocol) configuration
+[mcp]
+server_reference = "app.mcp.server"      # Default server module reference
+
+# Optional Runflow configuration
+[runflow]
+use_data_analysis_agent = false          # Enable Data Analysis Agent
